@@ -50,7 +50,7 @@ const Navigation = ({ cartCount }: { cartCount: number }) => {
       }`}>
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-full flex items-center justify-between">
         <Link to="/" className="hover:opacity-70 transition-all flex-shrink-0">
-          <Logo className={scrolled ? "h-10" : "h-14"} />
+          <Logo className={scrolled ? "h-14" : "h-20"} />
         </Link>
 
         <div className={`hidden md:flex items-center gap-10 text-[11px] font-medium uppercase tracking-[0.1em] transition-colors duration-500 ${scrolled ? 'text-neutral-800' : 'text-neutral-700'

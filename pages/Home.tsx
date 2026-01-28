@@ -41,9 +41,7 @@ const HeroSection = () => {
           transition={{ delay: 0.2, duration: 1 }}
           className="absolute bottom-14 flex flex-col items-center text-center"
         >
-          <h3 className="text-[12px] font-bold tracking-[0.4em] uppercase text-blue-200 mb-3">Premium T-Shirts</h3>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-blue-300 mb-8">Built for Everyday Style</p>
-          <Link to="/shop" className="group relative inline-flex items-center gap-4 px-10 py-3 bg-transparent border border-blue-400/30 text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-white hover:text-blue-900 hover:border-white transition-all duration-300 rounded-lg shadow-none active:scale-95 text-blue-100">
+          <Link to="/shop" className="group relative inline-flex items-center gap-4 px-6 py-2 bg-white border border-white text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-neutral-100 hover:text-blue-900 hover:border-white transition-all duration-300 rounded-full shadow-none active:scale-95 text-blue-900">
             Shop T-Shirts
           </Link>
         </motion.div>
