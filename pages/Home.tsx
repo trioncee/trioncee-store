@@ -3,7 +3,7 @@ import { motion as motionBase, useScroll, useTransform } from 'framer-motion';
 import { ChevronRight, ArrowRight, User, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
-import ScrollImageSequence from '../components/ScrollImageSequence';
+
 
 const motion = motionBase as any;
 
@@ -15,7 +15,23 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen w-full overflow-hidden flex flex-col items-center">
       <div className="absolute inset-0 z-10">
-        <ScrollImageSequence autoPlay={true} enableScroll={false} />
+        {/* Mobile Image */}
+        <div className="md:hidden absolute inset-0">
+          <img
+            src="/home-images/Final_Mobile.png"
+            alt="Hero Mobile"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Desktop Image */}
+        <div className="hidden md:block absolute inset-0">
+          <img
+            src="/home-images/Final_Desktop.png"
+            alt="Hero Desktop"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
 
       <div className="relative z-20 w-full max-w-[1600px] flex flex-col items-center h-full mx-auto min-h-screen">
@@ -73,11 +89,7 @@ const FeaturedProducts = ({ products }: { products: Product[] }) => (
 );
 
 const TEAM_MEMBERS = [
-  {
-    name: "Sai",
-    role: "Founder",
-    image: ""
-  },
+
   {
     name: "Ravindra",
     role: "Founder",

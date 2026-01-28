@@ -11,7 +11,7 @@ interface ShopProps {
   products: Product[];
 }
 
-const FILTERS = ['ALL', 'Woodies', 'TShirts', 'Oversized', 'Sweat Wear'];
+const FILTERS = ['ALL', 'hoodies', 'TShirts', 'Oversized', 'Sweat Wear'];
 
 const Shop: React.FC<ShopProps> = ({ products }) => {
   const [activeFilter, setActiveFilter] = React.useState('ALL');
@@ -52,8 +52,8 @@ const Shop: React.FC<ShopProps> = ({ products }) => {
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={`px-6 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${activeFilter === filter
-                  ? 'bg-black text-white border-black'
-                  : 'bg-transparent text-neutral-400 border-neutral-200 hover:border-black hover:text-black'
+                ? 'bg-black text-white border-black'
+                : 'bg-transparent text-neutral-400 border-neutral-200 hover:border-black hover:text-black'
                 }`}
             >
               {filter}

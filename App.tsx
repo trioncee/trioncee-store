@@ -19,7 +19,7 @@ const motion = motionBase as any;
 const Logo = ({ className = "h-12" }: { className?: string }) => (
   <div className={`flex items-center ${className}`}>
     <img
-      src="/logo.jpeg"
+      src="/home-images/Final_logo.png"
       alt="TRIONCEE FASHION"
       className="h-full w-auto object-contain"
     />
