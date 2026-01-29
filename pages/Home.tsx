@@ -223,7 +223,6 @@ const Home = ({ products }: { products: Product[] }) => (
   >
     <HeroSection />
     <CollectionPreview products={products} />
-    <FeaturedProducts products={products} />
     <TeamSection />
   </motion.div>
 );
