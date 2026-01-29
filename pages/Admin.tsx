@@ -24,7 +24,7 @@ const Admin: React.FC<AdminProps> = ({ products, updateProducts }) => {
         }
     };
 
-    // CRUD Operations
+    // CRUD Founder
     const handleDelete = (id: string) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             const updated = products.filter(p => p.id !== id);

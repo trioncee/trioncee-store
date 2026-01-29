@@ -50,6 +50,66 @@ const HeroSection = () => {
   );
 };
 
+const CollectionPreview = ({ products }: { products: Product[] }) => {
+  // Identify generated products by checking if they are NOT in the manually defined list constants (heuristic: ID format)
+  // Generated IDs are like "Category-Collection" (e.g. "Hoodies-1")
+  // Let's filter for those.
+  const collectionProducts = products.filter(p => p.id.includes('-') && (p.category === 'Hoodies' || p.category === 'Oversized' || p.category === 'Printed' || p.category === 'Sweatwear'));
+
+  // Limit to show a nice variety
+  const displayProducts = collectionProducts.slice(0, 6);
+
+  if (displayProducts.length === 0) return null;
+
+  return (
+    <section className="py-16 px-6 md:px-12 bg-transparent">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="text-center mb-12">
+          <span className="text-[10px] font-bold uppercase tracking-[0.7em] text-blue-200 mb-4 block">New Drops</span>
+          <h2 className="text-3xl font-light tracking-tight uppercase text-white">Latest Collections</h2>
+          <div className="w-12 h-[1px] bg-blue-400/30 mx-auto mt-6"></div>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-8">
+          {displayProducts.map((product, idx) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1, duration: 0.8 }}
+            >
+              <Link to={`/product/${product.id}`} className="group block">
+                <div className="w-[280px] aspect-[3/4] bg-white relative overflow-hidden rounded-sm border border-blue-900/10">
+                  {product.images[0] ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-contain p-6 group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="text-neutral-300" /></div>
+                  )}
+                  <div className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-sm p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex justify-between items-center">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-blue-900">{product.category}</span>
+                    <ArrowRight size={14} className="text-blue-900" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link to="/shop" className="text-[10px] font-bold uppercase tracking-[0.4em] text-blue-200 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1">
+            View Complete Series
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const FeaturedProducts = ({ products }: { products: Product[] }) => (
   <section className="py-16 md:py-24 px-6 md:px-12 bg-transparent">
     <div className="max-w-[1400px] mx-auto">
@@ -62,7 +122,7 @@ const FeaturedProducts = ({ products }: { products: Product[] }) => (
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
-        {products.slice(0, 3).map((product, idx) => (
+        {products.filter(p => !p.id.includes('-')).slice(0, 3).map((product, idx) => (
           <motion.div key={product.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1, duration: 1 }}>
             <Link to={`/product/${product.id}`} className="group block">
               <div className="aspect-[4/5] bg-white overflow-hidden mb-6 relative rounded-sm shadow-sm border border-blue-900/10 flex items-center justify-center">
@@ -95,22 +155,22 @@ const TEAM_MEMBERS = [
   },
   {
     name: "Munna",
-    role: "Co-Founder",
+    role: "Founder",
     image: ""
   },
   {
     name: "Naveen",
-    role: "Design",
+    role: "Founder",
     image: ""
   },
   {
     name: "Sagar",
-    role: "Operations",
+    role: "Founder",
     image: ""
   },
   {
     name: "Kalyan",
-    role: "Designer",
+    role: "Founder",
     image: ""
   }
 ];
@@ -162,6 +222,7 @@ const Home = ({ products }: { products: Product[] }) => (
     className="w-full min-h-screen bg-gradient-to-b from-[#1B4079] to-[#112d5a]"
   >
     <HeroSection />
+    <CollectionPreview products={products} />
     <FeaturedProducts products={products} />
     <TeamSection />
   </motion.div>

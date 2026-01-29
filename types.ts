@@ -28,3 +28,9 @@ export interface OrderDetails {
   };
   date: string;
 }
+
+export interface CollectionData {
+  [category: string]: {
+    [collection: string]: string[];
+  };
+}

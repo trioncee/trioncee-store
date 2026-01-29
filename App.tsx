@@ -13,6 +13,7 @@ import Admin from './pages/Admin';
 import { BRAND_NAME } from './constants';
 import { CartItem, Product } from './types';
 import { PRODUCTS } from './constants';
+import { generateProductsFromCollections } from './utils/productAdapter';
 
 const motion = motionBase as any;
 
@@ -143,17 +144,23 @@ const App = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
+  // ...
+
   useEffect(() => {
     const savedCart = localStorage.getItem('iconic_cart');
     if (savedCart) setCart(JSON.parse(savedCart));
 
-    const savedProducts = localStorage.getItem('iconic_products');
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      setProducts(PRODUCTS);
-      localStorage.setItem('iconic_products', JSON.stringify(PRODUCTS));
-    }
+    // Combine static products and generated products
+    const generatedProducts = generateProductsFromCollections();
+    // Prioritize generated products so they appear in Home "New Arrivals"
+    const allProducts = [...generatedProducts, ...PRODUCTS];
+
+    // We prefer fresh generation + constants over localStorage for products to ensure new folders appear
+    // But if we want to support admin updates we need to be careful.
+    // For now, let's prioritize the file system + constants.
+
+    setProducts(allProducts);
+    localStorage.setItem('iconic_products', JSON.stringify(allProducts));
   }, []);
 
   const updateProducts = (newProducts: Product[]) => {
