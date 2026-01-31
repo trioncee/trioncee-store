@@ -39,10 +39,29 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
     phone: '',
     address: '',
     city: '',
+    state: '',
     pincode: ''
   });
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.name) newErrors.name = 'Full Name is required';
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email address';
+    if (!formData.phone) newErrors.phone = 'Phone number is required';
+    else if (formData.phone.length < 10) newErrors.phone = 'Invalid phone number';
+    if (!formData.address) newErrors.address = 'Address is required';
+    if (!formData.city) newErrors.city = 'City is required';
+    if (!formData.state) newErrors.state = 'State is required';
+    if (!formData.pincode) newErrors.pincode = 'Pincode is required';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -52,6 +71,9 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     setIsProcessing(true);
 
     const backendUrl = import.meta.env.VITE_BACKEND_BASEURL;
@@ -87,7 +109,7 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
             item_name: itemNames,
             size: sizes,
             colour: colours,
-            address: formData.address,
+            address: `${formData.name} - ${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
             pincode: formData.pincode
           }
         })
@@ -178,17 +200,36 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
       <form onSubmit={handlePayment} className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
         {/* SHIPPING */}
-        <div className="space-y-6">
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.4em] text-neutral-400 border-b pb-3">
-            Shipping Information
-          </h2>
-
-          <input required name="name" placeholder="Full Name" value={formData.name} onChange={handleInputChange} className="input" />
-          <input required name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} className="input" />
-          <input required name="phone" placeholder="Contact Number" value={formData.phone} onChange={handleInputChange} className="input" />
-          <textarea required name="address" placeholder="Address" value={formData.address} onChange={handleInputChange as any} className="input" />
-          <input required name="city" placeholder="City" value={formData.city} onChange={handleInputChange} className="input" />
-          <input required name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleInputChange} className="input" />
+        <div className="space-y-4">
+          {['name', 'email', 'phone', 'address', 'city', 'state', 'pincode'].map((field) => (
+            <div key={field} className="group">
+              <div className="relative">
+                <input
+                  name={field}
+                  placeholder=" "
+                  value={(formData as any)[field]}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    if (errors[field as keyof typeof errors]) {
+                      setErrors({ ...errors, [field]: '' });
+                    }
+                  }}
+                  className={`input peer ${errors[field as keyof typeof errors] ? '!border-red-500' : ''}`}
+                />
+                <label className="absolute left-6 top-3 text-[10px] uppercase tracking-widest text-neutral-400 transition-all 
+                                  peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-neutral-400 
+                                  peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-neutral-600 peer-focus:opacity-100
+                                  peer-[&:not(:placeholder-shown)]:opacity-0 peer-[&:not(:placeholder-shown)]:invisible pointer-events-none">
+                  {field === 'pincode' ? 'Pin Code' : field.charAt(0).toUpperCase() + field.slice(1)} <span className="text-red-500">*</span>
+                </label>
+              </div>
+              {errors[field as keyof typeof errors] && (
+                <span className="text-[10px] text-red-500 font-medium tracking-wide mt-1 block pl-4 uppercase">
+                  {errors[field as keyof typeof errors]}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
 
         {/* SUMMARY */}
