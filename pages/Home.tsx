@@ -41,7 +41,7 @@ const HeroSection = () => {
           transition={{ delay: 0.2, duration: 1 }}
           className="absolute bottom-14 flex flex-col items-center text-center"
         >
-          <Link to="/shop" className="group relative inline-flex items-center gap-4 px-6 py-2 bg-white border border-white text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-neutral-100 hover:text-blue-900 hover:border-white transition-all duration-300 rounded-full shadow-none active:scale-95 text-blue-900">
+          <Link to="/shop" className="group relative inline-flex items-center gap-4 px-6 py-2 bg-black border border-black text-[10px] font-bold uppercase tracking-[0.25em] hover:bg-neutral-800 hover:text-white hover:border-black transition-all duration-300 rounded-full shadow-none active:scale-95 text-white">
             Shop T-Shirts
           </Link>
         </motion.div>
@@ -56,7 +56,7 @@ const CategoryCircles = ({ products }: { products: Product[] }) => {
   return (
     <section className="py-8 px-6 overflow-hidden bg-white border-b border-blue-900/5">
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex justify-center gap-2 md:gap-10 flex-wrap">
+        <div className="flex justify-center gap-4 md:gap-10 flex-wrap">
           {categories.map((cat, idx) => {
             // Find a representative image for the category
             const product = products.find(p => p.category === cat && p.images.length > 0);
