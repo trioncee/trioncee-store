@@ -19,8 +19,8 @@ export const generateProductsFromCollections = (): Product[] => {
 
             products.push({
                 id: id,
-                name: `${category} Collection ${collectionName}`,
-                price: 2499, // Default price as requested/assumed
+                name: category === 'Hoodies' ? `${category} Collection ${collectionName}` : `${category} Collection ${collectionName}`,
+                price: category === 'Hoodies' ? 1 : 1, // Test price for ALL Hoodies
                 description: `Premium ${category} from our exclusive Collection ${collectionName}. Features high-quality fabric and modern fit.`,
                 images: images,
                 category: category,

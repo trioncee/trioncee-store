@@ -30,18 +30,109 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    
-    // Simulating a "Demo Successful Order" process
-    // In a real scenario, this would trigger Razorpay or a backend API
-    setTimeout(() => {
-      console.log("Demo Payment Successful for order:", formData);
-      clearCart();
+
+    const backendUrl = import.meta.env.VITE_BACKEND_BASEURL;
+    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+    if (!razorpayKey || razorpayKey === 'YOUR_RAZORPAY_KEY_ID_HERE') {
+      alert("Razorpay Key ID is not configured. Please check your .env file.");
       setIsProcessing(false);
-      navigate('/success');
-    }, 2500);
+      return;
+    }
+
+    try {
+      // Prepare notes data
+      const itemNames = cart.map(item => item.name).join(', ');
+      const sizes = cart.map(item => item.selectedSize).join(', ');
+      const colors = cart.map(item => item.selectedColor).join(', ');
+
+      // 1. Create Order
+      const orderResponse = await fetch(`${backendUrl}/api/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          notes: {
+            item_name: itemNames,
+            size: sizes,
+            colour: colors,
+            address: formData.address,
+            pincode: formData.pincode
+          }
+        })
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const orderData = await orderResponse.json();
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: razorpayKey,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: BRAND_NAME,
+        description: "Purchase from Trioncee Fashion",
+        order_id: orderData.id,
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone
+        },
+        theme: {
+          color: "#1a1a1a"
+        },
+        handler: async function (response: any) {
+          try {
+            // 3. Verify Payment
+            const verifyResponse = await fetch(`${backendUrl}/api/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+
+            const verifyData = await verifyResponse.json();
+
+            if (verifyData.status === 'success') {
+              // 4. Success
+              clearCart();
+              navigate('/success');
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (verifyError) {
+            console.error('Verification Error:', verifyError);
+            alert('Payment verification failed due to a network error.');
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+          }
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any) {
+        alert(`Payment Failed: ${response.error.description}`);
+        setIsProcessing(false);
+      });
+      rzp.open();
+
+    } catch (error) {
+      console.error('Order Creation Error:', error);
+      alert('Failed to initiate payment. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -53,7 +144,7 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
     >
       <h1 className="text-4xl font-light tracking-tight mb-10 uppercase text-center">Checkout</h1>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <form onSubmit={handlePayment} className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Shipping Info */}
         <div className="space-y-6">
           <h2 className="text-[11px] font-bold uppercase tracking-[0.4em] text-neutral-400 border-b border-neutral-100 pb-3">Shipping Information</h2>
@@ -143,25 +234,24 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
               <span>₹{total}</span>
             </div>
           </div>
-          
+
           <button
             type="submit"
             disabled={isProcessing}
-            className={`w-full py-6 text-[10px] font-bold uppercase tracking-[0.5em] transition-all rounded-sm shadow-xl ${
-              isProcessing ? 'bg-neutral-400 cursor-not-allowed' : 'bg-neutral-900 text-white hover:bg-black active:scale-[0.98]'
-            }`}
+            className={`w-full py-6 text-[10px] font-bold uppercase tracking-[0.5em] transition-all rounded-sm shadow-xl ${isProcessing ? 'bg-neutral-400 cursor-not-allowed' : 'bg-neutral-900 text-white hover:bg-black active:scale-[0.98]'
+              }`}
           >
-            {isProcessing ? 'Verifying Transaction...' : 'Complete Purchase'}
+            {isProcessing ? 'Processing Payment...' : 'Complete Purchase'}
           </button>
-          
+
           <div className="mt-10 flex flex-col items-center gap-4">
             <p className="text-[9px] text-neutral-400 text-center uppercase tracking-[0.3em]">
-              Secured Demo Checkout for {BRAND_NAME}
+              Secured Checkout by Razorpay
             </p>
             <div className="flex gap-4 opacity-30 grayscale contrast-150">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-3" alt="Paypal" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" className="h-3" alt="Visa" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-3" alt="Mastercard" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-3" alt="Paypal" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" className="h-3" alt="Visa" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-3" alt="Mastercard" />
             </div>
           </div>
         </div>

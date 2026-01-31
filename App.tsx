@@ -161,6 +161,20 @@ const App = () => {
 
     setProducts(allProducts);
     localStorage.setItem('iconic_products', JSON.stringify(allProducts));
+
+    // Sync cart prices with fresh products (in case price changed, e.g. for testing)
+    if (savedCart) {
+      const parsedCart: CartItem[] = JSON.parse(savedCart);
+      const updatedCart = parsedCart.map(item => {
+        const freshProduct = allProducts.find(p => p.id === item.id);
+        if (freshProduct && freshProduct.price !== item.price) {
+          return { ...item, price: freshProduct.price };
+        }
+        return item;
+      });
+      setCart(updatedCart);
+      localStorage.setItem('iconic_cart', JSON.stringify(updatedCart));
+    }
   }, []);
 
   const updateProducts = (newProducts: Product[]) => {
