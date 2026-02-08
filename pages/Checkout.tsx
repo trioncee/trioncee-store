@@ -120,6 +120,7 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
       }
 
       const orderData = await orderResponse.json();
+      console.log('📦 Order Created:', orderData);
 
       /** 4️⃣ Open Razorpay */
       const options = {
@@ -137,29 +138,53 @@ const Checkout: React.FC<Props> = ({ cart, clearCart }) => {
         theme: { color: '#1a1a1a' },
 
         handler: async function (response: any) {
+          console.log('✅ Razorpay Payment Success:', response);
+
           try {
+            const verificationPayload = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              shipping_details: {
+                name: formData.name,
+                phone: formData.phone,
+                email: formData.email,
+                address: formData.address,
+                city: formData.city,
+                state: formData.state,
+                pincode: parseInt(formData.pincode), // Ensure number
+                verified_total: total,
+                items: cart.map(item => ({
+                  name: item.name,
+                  quantity: item.quantity,
+                  selling_price: item.price
+                }))
+              }
+            };
+
+            console.log('🔄 Verifying Payment with Backend...', JSON.stringify(verificationPayload, null, 2));
+
             const verifyRes = await fetch(`${backendUrl}/api/verify-payment`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
-              })
+              body: JSON.stringify(verificationPayload)
             });
 
             const verifyData = await verifyRes.json();
+            console.log('📩 Verification Response:', verifyData);
 
             if (verifyData.status === 'success') {
+              console.log('🎉 Payment Verified Successfully!');
               clearCart();
               setIsProcessing(false);
               navigate('/success');
             } else {
+              console.error('❌ Verification Failed:', verifyData);
               alert('Payment verification failed');
               setIsProcessing(false);
             }
           } catch (err) {
-            console.error(err);
+            console.error('🚨 Verification Error:', err);
             alert('Verification failed');
             setIsProcessing(false);
           }
