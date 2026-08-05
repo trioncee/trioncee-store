@@ -209,23 +209,13 @@ const TEAM_MEMBERS = [
     image: ""
   },
   {
-    name: "Munna",
-    role: "Founder",
-    image: ""
-  },
-  {
-    name: "Naveen",
-    role: "Founder",
-    image: ""
-  },
-  {
-    name: "Sagar",
-    role: "Founder",
+    name: "Naveen Manyam",
+    role: "Developer/Founder",
     image: ""
   },
   {
     name: "Kalyan",
-    role: "Founder",
+    role: "Marketing Manager",
     image: ""
   }
 ];
